@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste em Lote - Webhook N8N</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif; /* Usando fonte Inter */
+      background-color: #f0f4f8; /* Cor de fundo suave */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .container {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 12px; /* Cantos arredondados */
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+      box-sizing: border-box;
+    }
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 25px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #34495e;
+      font-weight: 600;
+    }
+    input[type="text"],
+    input[type="email"],
+    textarea {
+      width: calc(100% - 20px);
+      padding: 12px 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ced4da;
+      border-radius: 8px; /* Cantos arredondados */
+      font-size: 16px;
+      color: #495057;
+      box-sizing: border-box;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 14px 25px;
+      border: none;
+      border-radius: 8px; /* Cantos arredondados */
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      width: 100%;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+    }
+    button:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+    }
+    .message-box {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        display: none; /* Hidden by default */
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+    }
+    .message-box.show {
+        display: block;
+        opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Disparo Múltiplo de Temas para o Webhook do N8N</h2>
+
+    <form id="batchForm">
+      <label for="nivel">Nível:</label><br>
+      <input type="text" id="nivel" value="Ensino Médio"><br><br>
+
+      <label for="email">E-mail:</label><br>
+      <input type="email" id="email" value="seuemail@exemplo.com"><br><br>
+
+      <label>Temas (um por linha):</label><br>
+      <textarea id="temas" rows="10" cols="40">Fotossíntese
+Energia Solar
+Globalização
+História do Brasil
+Célula Animal</textarea><br><br>
+
+      <button type="submit">Enviar Temas</button>
+    </form>
+  </div>
+
+  <div id="messageBox" class="message-box"></div>
+
+  <script>
+    // Função para exibir mensagens customizadas
+    function showMessage(message, type = 'success') {
+        const messageBox = document.getElementById('messageBox');
+        messageBox.textContent = message;
+        messageBox.style.backgroundColor = type === 'success' ? '#4CAF50' : '#f44336';
+        messageBox.classList.add('show');
+        setTimeout(() => {
+            messageBox.classList.remove('show');
+        }, 3000); // Esconde a mensagem após 3 segundos
+    }
+
+    document.getElementById("batchForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const nivel = document.getElementById("nivel").value;
+      const email = document.getElementById("email").value;
+      // Corrigindo o split para '\\n' (duas barras) para quebrar linhas corretamente
+      const temas = document.getElementById("temas").value.trim().split('\n');
+
+      let allSent = true;
+      let sentCount = 0;
+      let errorCount = 0;
+
+      // Usar Promise.all para esperar todas as requisições serem completas
+      const fetchPromises = temas.map((tema) => {
+        return fetch("https://primary-production-0f51.up.railway.app/webhook/new-lesson", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tema: tema.trim(), nível: nivel, email })
+        })
+        .then(res => {
+          if (res.ok) {
+            console.log(`✅ Tema "${tema}" enviado com sucesso.`);
+            sentCount++;
+          } else {
+            allSent = false;
+            errorCount++;
+            console.error(`❌ Erro ao enviar tema "${tema}". Status: ${res.status}`);
+          }
+        })
+        .catch(err => {
+          allSent = false;
+          errorCount++;
+          console.error(`🚨 Falha no envio de "${tema}":`, err);
+        });
+      });
+
+      Promise.allSettled(fetchPromises).then(() => {
+        if (allSent) {
+          showMessage(`Todos os ${sentCount} temas foram enviados com sucesso!`, 'success');
+        } else {
+          showMessage(`Envio concluído. ${sentCount} temas enviados, ${errorCount} com erros.`, 'error');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
