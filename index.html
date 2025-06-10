@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Teste em Lote - Webhook N8N</title>
   <style>
+    /* Estilos para o corpo da página */
     body {
       font-family: 'Inter', sans-serif; /* Usando fonte Inter */
       background-color: #f0f4f8; /* Cor de fundo suave */
@@ -16,6 +17,7 @@
       padding: 20px;
       box-sizing: border-box;
     }
+    /* Estilos para o container principal do formulário */
     .container {
       background-color: #ffffff;
       padding: 30px;
@@ -25,33 +27,38 @@
       max-width: 500px;
       box-sizing: border-box;
     }
+    /* Estilos para o título */
     h2 {
       text-align: center;
       color: #2c3e50;
       margin-bottom: 25px;
     }
+    /* Estilos para os rótulos */
     label {
       display: block;
       margin-bottom: 8px;
       color: #34495e;
       font-weight: 600;
     }
+    /* Estilos para campos de entrada de texto e e-mail, e textarea */
     input[type="text"],
     input[type="email"],
     textarea {
-      width: calc(100% - 20px);
+      width: calc(100% - 20px); /* Ajusta a largura com padding */
       padding: 12px 10px;
       margin-bottom: 20px;
       border: 1px solid #ced4da;
       border-radius: 8px; /* Cantos arredondados */
       font-size: 16px;
       color: #495057;
-      box-sizing: border-box;
+      box-sizing: border-box; /* Inclui padding e borda na largura total */
     }
+    /* Estilos específicos para o textarea */
     textarea {
-      resize: vertical;
+      resize: vertical; /* Permite redimensionar verticalmente */
       min-height: 120px;
     }
+    /* Estilos para o botão de envio */
     button {
       background-color: #007bff;
       color: white;
@@ -62,31 +69,35 @@
       font-size: 18px;
       font-weight: bold;
       width: 100%;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+      transition: background-color 0.3s ease, transform 0.2s ease; /* Transições suaves */
+      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2); /* Sombra para o botão */
     }
+    /* Efeitos de hover para o botão */
     button:hover {
       background-color: #0056b3;
-      transform: translateY(-2px);
+      transform: translateY(-2px); /* Efeito de elevação */
     }
+    /* Efeitos de clique para o botão */
     button:active {
       transform: translateY(0);
       box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
     }
+    /* Estilos para a caixa de mensagem (notificações) */
     .message-box {
-        position: fixed;
+        position: fixed; /* Posição fixa na tela */
         bottom: 20px;
         right: 20px;
-        background-color: #4CAF50;
+        background-color: #4CAF50; /* Cor de fundo padrão (sucesso) */
         color: white;
         padding: 15px 25px;
         border-radius: 8px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-        display: none; /* Hidden by default */
-        opacity: 0;
-        transition: opacity 0.5s ease-in-out;
+        z-index: 1000; /* Garante que fique acima de outros elementos */
+        display: none; /* Escondido por padrão */
+        opacity: 0; /* Transparência inicial */
+        transition: opacity 0.5s ease-in-out; /* Transição para aparecer/desaparecer */
     }
+    /* Estilo para mostrar a caixa de mensagem */
     .message-box.show {
         display: block;
         opacity: 1;
@@ -115,40 +126,48 @@ Célula Animal</textarea><br><br>
     </form>
   </div>
 
+  <!-- Elemento para exibir mensagens de notificação -->
   <div id="messageBox" class="message-box"></div>
 
   <script>
-    // Função para exibir mensagens customizadas
+    // Função para exibir mensagens customizadas na tela
     function showMessage(message, type = 'success') {
         const messageBox = document.getElementById('messageBox');
-        messageBox.textContent = message;
+        messageBox.textContent = message; // Define o texto da mensagem
+        // Define a cor de fundo com base no tipo de mensagem (sucesso ou erro)
         messageBox.style.backgroundColor = type === 'success' ? '#4CAF50' : '#f44336';
-        messageBox.classList.add('show');
+        messageBox.classList.add('show'); // Adiciona a classe 'show' para exibir a mensagem
+        // Esconde a mensagem após 3 segundos
         setTimeout(() => {
             messageBox.classList.remove('show');
-        }, 3000); // Esconde a mensagem após 3 segundos
+        }, 3000);
     }
 
+    // Adiciona um listener para o evento de submit do formulário
     document.getElementById("batchForm").addEventListener("submit", function (e) {
-      e.preventDefault();
+      e.preventDefault(); // Previne o comportamento padrão de envio do formulário
 
+      // Obtém os valores dos campos do formulário
       const nivel = document.getElementById("nivel").value;
       const email = document.getElementById("email").value;
-      // Corrigindo o split para '\\n' (duas barras) para quebrar linhas corretamente
+      // Quebra a string de temas por linha e remove espaços em branco
       const temas = document.getElementById("temas").value.trim().split('\n');
 
-      let allSent = true;
-      let sentCount = 0;
-      let errorCount = 0;
+      let allSent = true; // Flag para controlar se todos os envios foram bem-sucedidos
+      let sentCount = 0;  // Contador de temas enviados com sucesso
+      let errorCount = 0; // Contador de temas com erro no envio
 
-      // Usar Promise.all para esperar todas as requisições serem completas
+      // Cria um array de Promises, uma para cada requisição fetch
       const fetchPromises = temas.map((tema) => {
-        return fetch("https://primary-production-0f51.up.railway.app/webhook/new-lesson", {
+        // Retorna a Promise de cada requisição fetch
+        return fetch("https://primary-production-0f51.up.railway.app/webhook/new-lesson", { // <<-- ATENÇÃO: SUBSTITUA POR SUA URL REAL DO RAILWAY AQUI!
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          // Converte o objeto de dados para JSON para o corpo da requisição
           body: JSON.stringify({ tema: tema.trim(), nível: nivel, email })
         })
         .then(res => {
+          // Verifica se a resposta HTTP foi bem-sucedida (status 2xx)
           if (res.ok) {
             console.log(`✅ Tema "${tema}" enviado com sucesso.`);
             sentCount++;
@@ -159,13 +178,16 @@ Célula Animal</textarea><br><br>
           }
         })
         .catch(err => {
+          // Captura erros de rede ou outros erros da requisição
           allSent = false;
           errorCount++;
           console.error(`🚨 Falha no envio de "${tema}":`, err);
         });
       });
 
+      // Espera que todas as Promises (requisições) sejam resolvidas (sucesso ou falha)
       Promise.allSettled(fetchPromises).then(() => {
+        // Exibe a mensagem final com base nos resultados
         if (allSent) {
           showMessage(`Todos os ${sentCount} temas foram enviados com sucesso!`, 'success');
         } else {
