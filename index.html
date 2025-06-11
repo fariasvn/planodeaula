@@ -1,199 +1,156 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Teste em Lote - Webhook N8N</title>
+  <meta charset="UTF-8" />
+  <title>Gerar Nova Aula | Automasell</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    /* Estilos para o corpo da página */
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --bg: #f9fafb;
+      --card: #ffffff;
+      --border: #e5e7eb;
+    }
+
     body {
-      font-family: 'Inter', sans-serif; /* Usando fonte Inter */
-      background-color: #f0f4f8; /* Cor de fundo suave */
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: var(--bg);
       display: flex;
       justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-      box-sizing: border-box;
+      padding: 40px 20px;
     }
-    /* Estilos para o container principal do formulário */
+
     .container {
-      background-color: #ffffff;
-      padding: 30px;
-      border-radius: 12px; /* Cantos arredondados */
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      background-color: var(--card);
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      max-width: 600px;
       width: 100%;
-      max-width: 500px;
-      box-sizing: border-box;
+      border: 1px solid var(--border);
     }
-    /* Estilos para o título */
+
     h2 {
       text-align: center;
-      color: #2c3e50;
-      margin-bottom: 25px;
+      color: var(--primary-dark);
+      margin-bottom: 24px;
+      font-size: 1.8rem;
     }
-    /* Estilos para os rótulos */
+
     label {
       display: block;
-      margin-bottom: 8px;
-      color: #34495e;
+      margin-bottom: 6px;
       font-weight: 600;
+      color: var(--text);
     }
-    /* Estilos para campos de entrada de texto e e-mail, e textarea */
+
     input[type="text"],
-    input[type="email"],
+    select,
     textarea {
-      width: calc(100% - 20px); /* Ajusta a largura com padding */
-      padding: 12px 10px;
-      margin-bottom: 20px;
-      border: 1px solid #ced4da;
-      border-radius: 8px; /* Cantos arredondados */
-      font-size: 16px;
-      color: #495057;
-      box-sizing: border-box; /* Inclui padding e borda na largura total */
-    }
-    /* Estilos específicos para o textarea */
-    textarea {
-      resize: vertical; /* Permite redimensionar verticalmente */
-      min-height: 120px;
-    }
-    /* Estilos para o botão de envio */
-    button {
-      background-color: #007bff;
-      color: white;
-      padding: 14px 25px;
-      border: none;
-      border-radius: 8px; /* Cantos arredondados */
-      cursor: pointer;
-      font-size: 18px;
-      font-weight: bold;
       width: 100%;
-      transition: background-color 0.3s ease, transform 0.2s ease; /* Transições suaves */
-      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2); /* Sombra para o botão */
+      padding: 10px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 1rem;
     }
-    /* Efeitos de hover para o botão */
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
     button:hover {
-      background-color: #0056b3;
-      transform: translateY(-2px); /* Efeito de elevação */
+      background-color: var(--primary-dark);
     }
-    /* Efeitos de clique para o botão */
-    button:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+
+    #status {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--muted);
     }
-    /* Estilos para a caixa de mensagem (notificações) */
-    .message-box {
-        position: fixed; /* Posição fixa na tela */
-        bottom: 20px;
-        right: 20px;
-        background-color: #4CAF50; /* Cor de fundo padrão (sucesso) */
-        color: white;
-        padding: 15px 25px;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        z-index: 1000; /* Garante que fique acima de outros elementos */
-        display: none; /* Escondido por padrão */
-        opacity: 0; /* Transparência inicial */
-        transition: opacity 0.5s ease-in-out; /* Transição para aparecer/desaparecer */
-    }
-    /* Estilo para mostrar a caixa de mensagem */
-    .message-box.show {
-        display: block;
-        opacity: 1;
+
+    .footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Disparo Múltiplo de Temas para o Webhook do N8N</h2>
+    <h2>📚 Gerador de Nova Aula</h2>
+    <form id="lessonForm">
+      <label for="tema">Tema da Aula</label>
+      <input type="text" id="tema" name="tema" required placeholder="Ex: Geometria Espacial" />
 
-    <form id="batchForm">
-      <label for="nivel">Nível:</label><br>
-      <input type="text" id="nivel" value="Ensino Médio"><br><br>
+      <label for="nivel">Nível Educacional</label>
+      <select id="nivel" name="nivel" required>
+        <option value="">Selecione...</option>
+        <option value="fundamental">Ensino Fundamental</option>
+        <option value="medio">Ensino Médio</option>
+        <option value="superior">Ensino Superior</option>
+      </select>
 
-      <label for="email">E-mail:</label><br>
-      <input type="email" id="email" value="seuemail@exemplo.com"><br><br>
+      <label for="email">E-mails de Destino <span style="font-weight: 400;">(separados por vírgula)</span></label>
+      <textarea id="email" name="email" rows="3" required placeholder="exemplo1@email.com, exemplo2@email.com"></textarea>
 
-      <label>Temas (um por linha):</label><br>
-      <textarea id="temas" rows="10" cols="40">Fotossíntese
-Energia Solar
-Globalização
-História do Brasil
-Célula Animal</textarea><br><br>
-
-      <button type="submit">Enviar Temas</button>
+      <button type="submit">📤 Enviar Aula</button>
     </form>
+
+    <p id="status"></p>
+
+    <div class="footer">
+      Desenvolvido por <strong>Automasell</strong> – IA aplicada à educação
+    </div>
   </div>
 
-  <!-- Elemento para exibir mensagens de notificação -->
-  <div id="messageBox" class="message-box"></div>
-
   <script>
-    // Função para exibir mensagens customizadas na tela
-    function showMessage(message, type = 'success') {
-        const messageBox = document.getElementById('messageBox');
-        messageBox.textContent = message; // Define o texto da mensagem
-        // Define a cor de fundo com base no tipo de mensagem (sucesso ou erro)
-        messageBox.style.backgroundColor = type === 'success' ? '#4CAF50' : '#f44336';
-        messageBox.classList.add('show'); // Adiciona a classe 'show' para exibir a mensagem
-        // Esconde a mensagem após 3 segundos
-        setTimeout(() => {
-            messageBox.classList.remove('show');
-        }, 3000);
-    }
+    document.getElementById('lessonForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
 
-    // Adiciona um listener para o evento de submit do formulário
-    document.getElementById("batchForm").addEventListener("submit", function (e) {
-      e.preventDefault(); // Previne o comportamento padrão de envio do formulário
+      const tema = document.getElementById('tema').value.trim();
+      const nivel = document.getElementById('nivel').value;
+      const email = document.getElementById('email').value.trim();
 
-      // Obtém os valores dos campos do formulário
-      const nivel = document.getElementById("nivel").value;
-      const email = document.getElementById("email").value;
-      // Quebra a string de temas por linha e remove espaços em branco
-      const temas = document.getElementById("temas").value.trim().split('\n');
+      const status = document.getElementById('status');
+      status.textContent = 'Enviando...';
 
-      let allSent = true; // Flag para controlar se todos os envios foram bem-sucedidos
-      let sentCount = 0;  // Contador de temas enviados com sucesso
-      let errorCount = 0; // Contador de temas com erro no envio
-
-      // Cria um array de Promises, uma para cada requisição fetch
-      const fetchPromises = temas.map((tema) => {
-        // Retorna a Promise de cada requisição fetch
-        return fetch("https://primary-production-0f51.up.railway.app/webhook/new-lesson", { // <<-- ATENÇÃO: SUBSTITUA POR SUA URL REAL DO RAILWAY AQUI!
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          // Converte o objeto de dados para JSON para o corpo da requisição
-          body: JSON.stringify({ tema: tema.trim(), nível: nivel, email })
-        })
-        .then(res => {
-          // Verifica se a resposta HTTP foi bem-sucedida (status 2xx)
-          if (res.ok) {
-            console.log(`✅ Tema "${tema}" enviado com sucesso.`);
-            sentCount++;
-          } else {
-            allSent = false;
-            errorCount++;
-            console.error(`❌ Erro ao enviar tema "${tema}". Status: ${res.status}`);
-          }
-        })
-        .catch(err => {
-          // Captura erros de rede ou outros erros da requisição
-          allSent = false;
-          errorCount++;
-          console.error(`🚨 Falha no envio de "${tema}":`, err);
+      try {
+        const response = await fetch('https://primary-production-0f51.up.railway.app/webhook/new-prova', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ tema, nivel, email }),
         });
-      });
 
-      // Espera que todas as Promises (requisições) sejam resolvidas (sucesso ou falha)
-      Promise.allSettled(fetchPromises).then(() => {
-        // Exibe a mensagem final com base nos resultados
-        if (allSent) {
-          showMessage(`Todos os ${sentCount} temas foram enviados com sucesso!`, 'success');
+        if (response.ok) {
+          status.textContent = '✅ Solicitação enviada com sucesso!';
         } else {
-          showMessage(`Envio concluído. ${sentCount} temas enviados, ${errorCount} com erros.`, 'error');
+          status.textContent = '❌ Erro ao enviar a solicitação.';
         }
-      });
+      } catch (error) {
+        status.textContent = '⚠️ Erro de conexão: ' + error.message;
+      }
     });
   </script>
 </body>
