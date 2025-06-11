@@ -98,7 +98,7 @@
 <body>
   <div class="container">
     <h2>📚 Gerador de Nova Aula</h2>
-    <form id="lessonForm">
+    <form id="lessonForm" method="POST" action="#">
       <label for="tema">Tema da Aula</label>
       <input type="text" id="tema" name="tema" required placeholder="Ex: Geometria Espacial" />
 
@@ -130,8 +130,8 @@
       const tema = document.getElementById('tema').value.trim();
       const nivel = document.getElementById('nivel').value;
       const email = document.getElementById('email').value.trim();
-
       const status = document.getElementById('status');
+
       status.textContent = 'Enviando...';
 
       try {
@@ -140,7 +140,7 @@
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ tema, nivel, email }),
+          body: JSON.stringify({ tema, nível: nivel, email }),
         });
 
         if (response.ok) {
